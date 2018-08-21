@@ -10,6 +10,9 @@ import rewards.internal.restaurant.Restaurant;
 import rewards.internal.restaurant.RestaurantRepository;
 import rewards.internal.reward.RewardRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import common.money.MonetaryAmount;
 
 /**
@@ -21,11 +24,12 @@ import common.money.MonetaryAmount;
  * Said in other words, this class implements the "reward account for dining" use case.
  */
 
-/* TODO-03: Annotate the class with an appropriate stereotype annotation 
+/* xTODO-03: Annotate the class with an appropriate stereotype annotation 
  * to cause component-scan to detect and load this bean.
  * Configure Dependency Injection for all 3 dependencies.  
  * Decide if you should use field level or constructor injection. */
 
+@Service
 public class RewardNetworkImpl implements RewardNetwork {
 
 	private AccountRepository accountRepository;
@@ -40,7 +44,7 @@ public class RewardNetworkImpl implements RewardNetwork {
 	 * @param restaurantRepository the repository for loading restaurants that determine how much to reward
 	 * @param rewardRepository the repository for recording a record of successful reward transactions
 	 */
-	
+	@Autowired
 	public RewardNetworkImpl(AccountRepository accountRepository, RestaurantRepository restaurantRepository,
 			RewardRepository rewardRepository) {
 		this.accountRepository = accountRepository;
