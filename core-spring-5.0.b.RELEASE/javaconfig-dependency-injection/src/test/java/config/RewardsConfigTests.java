@@ -34,8 +34,8 @@ public class RewardsConfigTests {
 	// - Fix RewardsConfig if necessary.
 	// - Now run the test, it should pass.
 
-	/*
-	private RewardsConfig rewardsConfig = new RewardsConfig(dataSource);
+	
+	private RewardsConfig rewardsConfig = null; //new RewardsConfig(dataSource);
 
 	@Test
 	public void getBeans() {
@@ -54,7 +54,7 @@ public class RewardsConfigTests {
 		assertTrue(rewardsRepository instanceof JdbcRewardRepository);
 		checkDataSource(rewardsRepository);
 	}
-	*/
+	
 
 	/**
 	 * Ensure the data-source is set for the repository. Uses reflection as we do

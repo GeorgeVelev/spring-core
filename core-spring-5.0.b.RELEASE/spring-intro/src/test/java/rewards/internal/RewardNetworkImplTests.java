@@ -41,11 +41,10 @@ public class RewardNetworkImplTests {
 		rewardNetwork = new RewardNetworkImpl(accountRepo, restaurantRepo, rewardRepo);
 	}
 
-	// TODO-03: Remove the @Disabled annotation below. Run this JUnit test, It should pass.
+	// xTODO-03: Remove the @Disabled annotation below. Run this JUnit test, It should pass.
 	@Test
-	@Disabled
 	public void testRewardForDining() {
-		// create a new dining of 100.00 charged to credit card '1234123412341234' by merchant '123457890' as test input
+	  // create a new dining of 100.00 charged to credit card '1234123412341234' by merchant '123457890' as test input
 		Dining dining = Dining.createDining("100.00", "1234123412341234", "1234567890");
 
 		// call the 'rewardNetwork' to test its rewardAccountFor(Dining) method
@@ -69,7 +68,8 @@ public class RewardNetworkImplTests {
 		assertEquals(2, contribution.getDistributions().size());
 
 		// each distribution should be 4.00 (as both have a 50% allocation)
-		assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Annabelle").getAmount());
-		assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Corgan").getAmount());
+		assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Bob").getAmount());
+		assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Alice").getAmount());
 	}
+	
 }

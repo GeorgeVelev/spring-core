@@ -108,12 +108,15 @@ public class Account extends Entity {
 	 * @return the individual beneficiary distributions
 	 */
 	private Set<Distribution> distribute(MonetaryAmount amount) {
+	  System.out.println("distributing amount " + amount);
 		Set<Distribution> distributions = new HashSet<Distribution>(beneficiaries.size());
 		for (Beneficiary beneficiary : beneficiaries) {
+		  System.out.println("beneficiary="+beneficiary+", total savings="+beneficiary.getSavings());
 			MonetaryAmount distributionAmount = amount.multiplyBy(beneficiary.getAllocationPercentage());
 			beneficiary.credit(distributionAmount);
 			Distribution distribution = new Distribution(beneficiary.getName(), distributionAmount, beneficiary
 					.getAllocationPercentage(), beneficiary.getSavings());
+			System.out.println("total savings now="+beneficiary.getSavings());
 			distributions.add(distribution);
 		}
 		return distributions;

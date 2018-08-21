@@ -25,11 +25,15 @@ public class RewardNetworkTests {
 	@BeforeEach
 	public void setUp() {
 		// Create the test configuration for the application:
-		
+	  
 		ApplicationContext context = SpringApplication.run(TestInfrastructureConfig.class);
 		
 		// Get the bean to use to invoke the application
 		rewardNetwork = context.getBean(RewardNetwork.class);
+		System.out.println("reward network="+rewardNetwork);
+		
+		//This form maps first arg to method name in @Configuration class in the event that multiple @Beans are defined for a single class. 
+		//rewardNetwork = context.getBean("RewardNetwork", RewardNetwork.class);
 	}
 
 	@Test
