@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Implementation-Title: spring-data-jpa-solution
+Implementation-Version: 5.0.a.RELEASE
+Built-By: jnewton
+Implementation-Vendor-Id: io.pivotal.education.core-spring
+Build-Jdk: 1.8.0_121
+Implementation-URL: http://projects.spring.io/spring-boot/spring-boot-
+ starter-parent/parentProject/spring-data-jpa-solution/
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Education
+
