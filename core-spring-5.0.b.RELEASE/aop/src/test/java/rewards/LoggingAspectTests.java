@@ -21,17 +21,31 @@ public class LoggingAspectTests {
 	@Autowired
 	AccountRepository repository;
 
+//	@Test
+//	@CaptureSystemOutput
+//	public void testLogger(OutputCapture capture) {
+//		repository.findByCreditCard("1234123412341234");
+//
+//		if (TestConstants.CHECK_CONSOLE_OUTPUT) {
+//			// AOP VERIFICATION
+//			// LoggingAspect should have output an INFO message to console
+//			String consoleOutput = capture.toString();
+//			assertTrue(consoleOutput.startsWith("INFO"));
+//			assertTrue(consoleOutput.contains("rewards.internal.aspects.LoggingAspect"));
+//		}
+//	}
+	
 	@Test
-	@CaptureSystemOutput
-	public void testLogger(OutputCapture capture) {
-		repository.findByCreditCard("1234123412341234");
+  @CaptureSystemOutput
+  public void testLogger2(OutputCapture capture) {
+    repository.findByCreditCard("1234123412341234");
 
-		if (TestConstants.CHECK_CONSOLE_OUTPUT) {
-			// AOP VERIFICATION
-			// LoggingAspect should have output an INFO message to console
-			String consoleOutput = capture.toString();
-			assertTrue(consoleOutput.startsWith("INFO"));
-			assertTrue(consoleOutput.contains("rewards.internal.aspects.LoggingAspect"));
-		}
-	}
+    if (TestConstants.CHECK_CONSOLE_OUTPUT) {
+      // AOP VERIFICATION
+      // LoggingAspect should have output an INFO message to console
+      String consoleOutput = capture.toString();
+      assertTrue(consoleOutput.startsWith("INFO"));
+      assertTrue(consoleOutput.contains("LoggingAspect"));
+    }
+  }
 }

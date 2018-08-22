@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import rewards.Dining;
 import rewards.internal.account.Account;
@@ -25,51 +27,56 @@ import common.money.Percentage;
 
 public class JdbcRestaurantRepository implements RestaurantRepository {
 
-	private DataSource dataSource;
+  private JdbcTemplate jdbcTemplate;
+	//private DataSource dataSource;
 
 	public JdbcRestaurantRepository(DataSource dataSource) {
-		this.dataSource = dataSource;
+		//this.dataSource = dataSource;
+	  this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 
 	public Restaurant findByMerchantNumber(String merchantNumber) {
 		String sql = "select MERCHANT_NUMBER, NAME, BENEFIT_PERCENTAGE, BENEFIT_AVAILABILITY_POLICY from T_RESTAURANT where MERCHANT_NUMBER = ?";
-		Restaurant restaurant = null;
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			conn = dataSource.getConnection();
-			ps = conn.prepareStatement(sql);
-			ps.setString(1, merchantNumber);
-			rs = ps.executeQuery();
-			advanceToNextRow(rs);
-			restaurant = mapRestaurant(rs);
-		} catch (SQLException e) {
-			throw new RuntimeException("SQL exception occurred finding by merchant number", e);
-		} finally {
-			if (rs != null) {
-				try {
-					// Close to prevent database cursor exhaustion
-					rs.close();
-				} catch (SQLException ex) {
-				}
-			}
-			if (ps != null) {
-				try {
-					// Close to prevent database cursor exhaustion
-					ps.close();
-				} catch (SQLException ex) {
-				}
-			}
-			if (conn != null) {
-				try {
-					// Close to prevent database connection exhaustion
-					conn.close();
-				} catch (SQLException ex) {
-				}
-			}
-		}
-		return restaurant;
+		return jdbcTemplate.queryForObject(sql, (ResultSet rs, int rowNum) -> {
+		  return new Restaurant(rs.getString("MERCHANT_NUMBER"), rs.getString("NAME"));
+    } );
+		
+//		Connection conn = null;
+//		PreparedStatement ps = null;
+//		ResultSet rs = null;
+//		try {
+//			conn = dataSource.getConnection();
+//			ps = conn.prepareStatement(sql);
+//			ps.setString(1, merchantNumber);
+//			rs = ps.executeQuery();
+//			advanceToNextRow(rs);
+//			restaurant = mapRestaurant(rs);
+//		} catch (SQLException e) {
+//			throw new RuntimeException("SQL exception occurred finding by merchant number", e);
+//		} finally {
+//			if (rs != null) {
+//				try {
+//					// Close to prevent database cursor exhaustion
+//					rs.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//			if (ps != null) {
+//				try {
+//					// Close to prevent database cursor exhaustion
+//					ps.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//			if (conn != null) {
+//				try {
+//					// Close to prevent database connection exhaustion
+//					conn.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//		}
+//		return restaurant;
 	}
 
 	/**

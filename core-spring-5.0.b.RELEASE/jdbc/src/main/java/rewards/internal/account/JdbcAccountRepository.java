@@ -7,7 +7,11 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import common.money.MonetaryAmount;
 import common.money.Percentage;
@@ -22,10 +26,12 @@ import common.money.Percentage;
 // 2. Modify the constructor to initialize a new JdbcTemplate data member
 public class JdbcAccountRepository implements AccountRepository {
 
-	private DataSource dataSource;
+	//private DataSource dataSource;
+  private JdbcTemplate jdbcTemplate;
 
 	public JdbcAccountRepository(DataSource dataSource) {
-		this.dataSource = dataSource;
+	  this.jdbcTemplate = new JdbcTemplate(dataSource);
+		//this.dataSource = dataSource;
 	}
 
 	// TODO-07: OPTIONAL STEP. Refactor this method using a ResultSetExtractor.
@@ -43,42 +49,53 @@ public class JdbcAccountRepository implements AccountRepository {
 			"on a.ID = b.ACCOUNT_ID " +
 			"where c.ACCOUNT_ID = a.ID and c.NUMBER = ?";
 		
-		Account account = null;
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			conn = dataSource.getConnection();
-			ps = conn.prepareStatement(sql);
-			ps.setString(1, creditCardNumber);
-			rs = ps.executeQuery();
-			account = mapAccount(rs);
-		} catch (SQLException e) {
-			throw new RuntimeException("SQL exception occurred finding by credit card number", e);
-		} finally {
-			if (rs != null) {
-				try {
-					// Close to prevent database cursor exhaustion
-					rs.close();
-				} catch (SQLException ex) {
-				}
-			}
-			if (ps != null) {
-				try {
-					// Close to prevent database cursor exhaustion
-					ps.close();
-				} catch (SQLException ex) {
-				}
-			}
-			if (conn != null) {
-				try {
-					// Close to prevent database connection exhaustion
-					conn.close();
-				} catch (SQLException ex) {
-				}
-			}
-		}
+		Account account = jdbcTemplate.query(sql, 
+		  (PreparedStatement ps) -> { 
+		    ps.setString(1, creditCardNumber);
+		  },
+		  (ResultSet rs) -> { 
+		    return mapAccount(rs);
+		  }
+    );
+		
 		return account;
+		
+//		Account account = null;
+//		Connection conn = null;
+//		PreparedStatement ps = null;
+//		ResultSet rs = null;
+//		try {
+//			conn = dataSource.getConnection();
+//			ps = conn.prepareStatement(sql);
+//			ps.setString(1, creditCardNumber);
+//			rs = ps.executeQuery();
+//			account = mapAccount(rs);
+//		} catch (SQLException e) {
+//			throw new RuntimeException("SQL exception occurred finding by credit card number", e);
+//		} finally {
+//			if (rs != null) {
+//				try {
+//					// Close to prevent database cursor exhaustion
+//					rs.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//			if (ps != null) {
+//				try {
+//					// Close to prevent database cursor exhaustion
+//					ps.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//			if (conn != null) {
+//				try {
+//					// Close to prevent database connection exhaustion
+//					conn.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//		}
+//		return account;
 	}
 
 	// TODO-06: OPTIONAL STEP. Refactor this method to use Spring's JdbcTemplate.
@@ -86,35 +103,43 @@ public class JdbcAccountRepository implements AccountRepository {
 	// 2. Rerun the JdbcAccountRepositoryTests. When they pass, you are done.
 	public void updateBeneficiaries(Account account) {
 		String sql = "update T_ACCOUNT_BENEFICIARY SET SAVINGS = ? where ACCOUNT_ID = ? and NAME = ?";
-		Connection conn = null;
-		PreparedStatement ps = null;
-		try {
-			conn = dataSource.getConnection();
-			ps = conn.prepareStatement(sql);
-			for (Beneficiary beneficiary : account.getBeneficiaries()) {
-				ps.setBigDecimal(1, beneficiary.getSavings().asBigDecimal());
-				ps.setLong(2, account.getEntityId());
-				ps.setString(3, beneficiary.getName());
-				ps.executeUpdate();
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("SQL exception occurred updating beneficiary savings", e);
-		} finally {
-			if (ps != null) {
-				try {
-					// Close to prevent database cursor exhaustion
-					ps.close();
-				} catch (SQLException ex) {
-				}
-			}
-			if (conn != null) {
-				try {
-					// Close to prevent database connection exhaustion
-					conn.close();
-				} catch (SQLException ex) {
-				}
-			}
+		for (Beneficiary beneficiary : account.getBeneficiaries()) {
+  		jdbcTemplate.update(sql, (PreparedStatement ps) -> { 
+  		  ps.setBigDecimal(1, beneficiary.getSavings().asBigDecimal());
+  		  ps.setLong(2, account.getEntityId());
+  		  ps.setString(3, beneficiary.getName());
+      } );
 		}
+//		
+//		Connection conn = null;
+//		PreparedStatement ps = null;
+//		try {
+//			conn = dataSource.getConnection();
+//			ps = conn.prepareStatement(sql);
+//			for (Beneficiary beneficiary : account.getBeneficiaries()) {
+//				ps.setBigDecimal(1, beneficiary.getSavings().asBigDecimal());
+//				ps.setLong(2, account.getEntityId());
+//				ps.setString(3, beneficiary.getName());
+//				ps.executeUpdate();
+//			}
+//		} catch (SQLException e) {
+//			throw new RuntimeException("SQL exception occurred updating beneficiary savings", e);
+//		} finally {
+//			if (ps != null) {
+//				try {
+//					// Close to prevent database cursor exhaustion
+//					ps.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//			if (conn != null) {
+//				try {
+//					// Close to prevent database connection exhaustion
+//					conn.close();
+//				} catch (SQLException ex) {
+//				}
+//			}
+//		}
 	}
 
 	/**
@@ -126,7 +151,8 @@ public class JdbcAccountRepository implements AccountRepository {
 	 * @throws SQLException an exception occurred extracting data from the result set
 	 */
 	private Account mapAccount(ResultSet rs) throws SQLException {
-		Account account = null;
+		System.out.println("Inside mapAccount");
+	  Account account = null;
 		while (rs.next()) {
 			if (account == null) {
 				String number = rs.getString("ACCOUNT_NUMBER");

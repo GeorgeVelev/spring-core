@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 
@@ -43,19 +44,25 @@ public class JdbcRewardRepositoryTests {
 
 	@Test
 	public void testCreateReward() throws SQLException {
-		Dining dining = Dining.createDining("100.00", "1234123412341234", "0123456789");
-
-		Account account = new Account("1", "Keith and Keri Donald");
-		account.setEntityId(0L);
-		account.addBeneficiary("Annabelle", Percentage.valueOf("50%"));
-		account.addBeneficiary("Corgan", Percentage.valueOf("50%"));
-
-		AccountContribution contribution = account.makeContribution(MonetaryAmount.valueOf("8.00"));
-		RewardConfirmation confirmation = repository.confirmReward(contribution, dining);
-		assertNotNull(confirmation, "confirmation should not be null");
-		assertNotNull(confirmation.getConfirmationNumber(), "confirmation number should not be null");
-		assertEquals(contribution, confirmation.getAccountContribution(), "wrong contribution object");
-		verifyRewardInserted(confirmation, dining);
+	  try { 
+  		Dining dining = Dining.createDining("100.00", "1234123412341234", "0123456789");
+  
+  		Account account = new Account("1", "Keith and Keri Donald");
+  		account.setEntityId(0L);
+  		account.addBeneficiary("Annabelle", Percentage.valueOf("50%"));
+  		account.addBeneficiary("Corgan", Percentage.valueOf("50%"));
+  
+  		AccountContribution contribution = account.makeContribution(MonetaryAmount.valueOf("8.00"));
+  		RewardConfirmation confirmation = repository.confirmReward(contribution, dining);
+  		assertNotNull(confirmation, "confirmation should not be null");
+  		assertNotNull(confirmation.getConfirmationNumber(), "confirmation number should not be null");
+  		assertEquals(contribution, confirmation.getAccountContribution(), "wrong contribution object");
+  		verifyRewardInserted(confirmation, dining);
+	  }
+	  catch (DataAccessException | SQLException e) { 
+	    e.printStackTrace();
+	    throw e;
+	  }
 	}
 
 	private void verifyRewardInserted(RewardConfirmation confirmation, Dining dining) throws SQLException {
@@ -64,8 +71,7 @@ public class JdbcRewardRepositoryTests {
 		//	TODO-02: Use the JdbcTemplate to query for a map of all values in the T_REWARD table based on the
 		// 	confirmationNumber. After making the changes, execute the test class to verify its 
 		//	successful execution.
-		
-		Map<String, Object> values = null;
+		Map<String, Object> values = jdbcTemplate.queryForMap("SELECT * FROM T_REWARD WHERE CONFIRMATION_NUMBER = ?", confirmation.getConfirmationNumber());
 		verifyInsertedValues(confirmation, dining, values);
 	}
 
@@ -81,7 +87,9 @@ public class JdbcRewardRepositoryTests {
 
 	private int getRewardCount() throws SQLException {
 		// TODO-01: Use the JdbcTemplate to query for the number of rows in the T_REWARD table
-		return -1;
+	  int rowCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM T_REWARD", Integer.class);
+	  System.out.println("rowCount="+rowCount);
+	  return rowCount;
 	}
 
 	private DataSource createTestDataSource() {

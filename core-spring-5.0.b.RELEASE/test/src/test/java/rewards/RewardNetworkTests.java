@@ -8,10 +8,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import common.money.MonetaryAmount;
+import config.RewardsConfig;
 
 /**
  * A system test that verifies the components of the RewardNetwork application
@@ -65,34 +71,47 @@ import common.money.MonetaryAmount;
 
 /* TODO 08: Bonus question: see the 'Optional Step' inside the Detailed Instructions.
  */
-
+@SpringJUnitConfig //(classes=TestInfrastructureConfig.class)
+@ActiveProfiles({ "prod", "jdbc-production" })
 public class RewardNetworkTests {
 
+  @Configuration
+  @Import({
+    TestInfrastructureDevConfig.class,
+    TestInfrastructureProductionConfig.class,
+    RewardsConfig.class })
+  static class TestInfrastructureConfig {
+
+    public LoggingBeanPostProcessor loggingBean(){
+      return new LoggingBeanPostProcessor();
+    }
+  }
 	
 	/**
 	 * The object being tested.
 	 */
+  @Autowired
 	private RewardNetwork rewardNetwork;
 
-	/**
-	 * Need this to enable clean shutdown at the end of the application
-	 */
-	private ConfigurableApplicationContext context;
-
-	@BeforeEach
-	public void setUp() {
-		// Create the test configuration for the application from one file
-		context = SpringApplication.run(TestInfrastructureConfig.class);
-		// Get the bean to use to invoke the application
-		rewardNetwork = context.getBean(RewardNetwork.class);
-	}
-
-	@AfterEach
-	public void tearDown() throws Exception {
-		// simulate the Spring bean destruction lifecycle:
-		if (context != null)
-			context.close();
-	}
+//	/**
+//	 * Need this to enable clean shutdown at the end of the application
+//	 */
+//	private ConfigurableApplicationContext context;
+//
+//	//@BeforeEach
+//	public void setUp() {
+//		// Create the test configuration for the application from one file
+//		context = SpringApplication.run(TestInfrastructureConfig.class);
+//		// Get the bean to use to invoke the application
+//		rewardNetwork = context.getBean(RewardNetwork.class);
+//	}
+//
+//	@AfterEach
+//	public void tearDown() throws Exception {
+//		// simulate the Spring bean destruction lifecycle:
+//		if (context != null)
+//			context.close();
+//	}
 
 	@Test
 	@DisplayName("test if reward computation and distribution works")
