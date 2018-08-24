@@ -11,8 +11,16 @@ public class HelloController {
 
 	@RequestMapping("/")
 	public String home() {
-		return "classpath:/templates/index.html";
+	  return "index";
+		//return "classpath:/templates/index.html";
 	}
+	
+	@RequestMapping("/hello")
+  public String hello(Model model) {
+	  model.addAttribute("name", "World");
+	  return "welcome";
+    //return "classpath:/templates/welcome.html";
+  }
 
 	// TODO-03: Time to write a simple controller method.
 	//

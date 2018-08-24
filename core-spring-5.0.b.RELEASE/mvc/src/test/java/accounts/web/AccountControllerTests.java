@@ -46,7 +46,8 @@ public class AccountControllerTests {
 		// TODO-08: Change this to expect a logical view name
 		// Re-run the test and make sure it passes
 		//
-		assertEquals("classpath:/templates/accountList.html", viewName);
+		//assertEquals("classpath:/templates/accountList.html", viewName);
+		assertEquals("accountList", viewName);
 	}
 
 	// TODO-10: Add a test for the accountDetails() method of AccountController.

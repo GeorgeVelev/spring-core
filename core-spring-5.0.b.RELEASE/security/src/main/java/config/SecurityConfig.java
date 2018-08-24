@@ -2,9 +2,12 @@ package config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -27,11 +30,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http
 			.formLogin()
-				.loginPage("/TODO-04a")
+				.loginPage("/login")
 				.permitAll()  // Unrestricted access to the login page
 				.and()
 			.exceptionHandling()
-				.accessDeniedPage("/TODO-04b")
+				.accessDeniedPage("/denied")
 				.and()
 				
 		//	TODO-06: As defined below, users with role EDITOR can already access '/accounts/account*'. 
@@ -44,7 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.mvcMatchers("/accounts/resources/**").permitAll()
 				.mvcMatchers("/accounts/edit*").hasRole("EDITOR")
-				.mvcMatchers("/accounts/account*").hasRole("EDITOR")
+				.mvcMatchers("/accounts/account*").hasAnyRole("EDITOR", "VIEWER")
+				.mvcMatchers("/accounts/**").authenticated()
 				.and()
 				
 		//	TODO-07: Log out by clicking on the 'log out' link. 
@@ -72,7 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		auth
 			.inMemoryAuthentication()
-				.withUser("vince").password("vince").roles("VIEWER");
+			  .passwordEncoder(new StandardPasswordEncoder())//new ShaPasswordEncoder(256))
+				.withUser("vince").password("08c461ad70fce6c74e12745931085508ccb2090f2eae3707f6b62089c634ddd2636f380f40109dfb").roles("VIEWER")
+				.and()
+				.withUser("edith").password("4cfbf05e4493d17125c547fdba494033d7aceee9310f253f3e96c4f928333d2436d669d63a84fe4f").roles("EDITOR");
 	}
 	
 	//	TODO-09: (Bonus) improve security by using standard encoding based on sha-256 hash. 

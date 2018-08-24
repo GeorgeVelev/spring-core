@@ -1,9 +1,12 @@
 package accounts.web;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import rewards.internal.account.Account;
 import rewards.internal.account.Beneficiary;
@@ -27,6 +30,7 @@ import accounts.AccountManager;
 // - Save the change, wait for the application to restart
 // - From the home page, navigate to List Accounts - this should now work
 // - Clicking on any individual account fails - you will implement that shortly
+@Controller
 public class AccountController {
 
 	private AccountManager accountManager;
@@ -54,7 +58,7 @@ public class AccountController {
 		// TODO-07a: Notice this is returning the full path to the template
 		// * Long template paths quickly get very tedious
 		// * Change it to return the logical view-name "accountList"
-		return "classpath:/templates/accountList.html";
+		return "accountList"; //"classpath:/templates/accountList.html";
 	}
 
 	// TODO-09: Implement the /accountDetails request handling method.
@@ -67,7 +71,20 @@ public class AccountController {
 	// 4. Finally tell Spring to use this template by returning the correct
 	// - logical view name.
 	// 5. Save all work
-
+	@RequestMapping("/accountDetails")
+  public String accountDetails(@RequestParam("entityId") long id, Model model) {
+	  Account account = accountManager.getAccount(id);
+    model.addAttribute("account", account);
+    System.out.println("returning account="+account);
+    System.out.println("Ben size="+account.getBeneficiaries().size());
+    
+    //model.addAttribute("beneficiaries", account.getBeneficiaries());
+    
+    // TODO-07a: Notice this is returning the full path to the template
+    // * Long template paths quickly get very tedious
+    // * Change it to return the logical view-name "accountList"
+    return "accountDetails"; //"classpath:/templates/accountList.html";
+  }
 
 	// TODO-11: You should now be able to click any of the account links and reach
 	// their details page.
