@@ -1,5 +1,7 @@
 package rewards.internal.restaurant;
 
+import org.springframework.data.repository.Repository;
+
 /**
  * Loads restaurant aggregates. Called by the reward network to find and reconstitute Restaurant entities from an
  * external form such as a set of RDMS rows.
@@ -14,7 +16,7 @@ package rewards.internal.restaurant;
 //TODO-04: Remove JpaRestaurantRepository implementation class of this interface
 //       since it is no longer needed. (Spring Data will create one for you).
 
-public interface RestaurantRepository {
+public interface RestaurantRepository extends Repository<Restaurant, Long> {
 
 	/**
 	 * Load a Restaurant entity by its merchant number.
@@ -22,5 +24,5 @@ public interface RestaurantRepository {
 	 * @return the restaurant
 	 */
 	// To refactor: right click on the method name -> Refactor -> Rename
-	public Restaurant findByMerchantNumber(String merchantNumber);
+	public Restaurant findByNumber(String merchantNumber);
 }

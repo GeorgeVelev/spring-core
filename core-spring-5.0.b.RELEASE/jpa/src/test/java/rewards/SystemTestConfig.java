@@ -53,6 +53,10 @@ public class SystemTestConfig {
 		props.setProperty("hibernate.format_sql", "true");
 
 		// Your turn ... configure the emf like the example in the slides ...
+		emf.setDataSource(dataSource);
+		emf.setPackagesToScan("rewards");
+		emf.setJpaProperties(props);
+		emf.setJpaVendorAdapter(adapter);
 		
 		return emf;
 	}
@@ -61,5 +65,8 @@ public class SystemTestConfig {
 	//	The @Bean method should accept a parameter of type EntityManagerFactory.
 	//	Use this parameter when instantiating the JpaTransactionManager.
 	//	Run the RewardNetworkTests, it should pass. 
-		
+  @Bean
+  public JpaTransactionManager transactionManager(EntityManagerFactory em) { 
+    return new JpaTransactionManager(em);
+  }
 }

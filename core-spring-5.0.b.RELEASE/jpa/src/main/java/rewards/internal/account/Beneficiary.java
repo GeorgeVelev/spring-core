@@ -20,8 +20,8 @@ import common.money.Percentage;
 @Entity
 @Table(name="T_ACCOUNT_BENEFICIARY")
 public class Beneficiary {
-    @Id
-    @Column(name="ID")
+  @Id
+  @Column(name="ID")
 	private Long entityId;
 
     // No need for @Column, mapped automatically to NAME

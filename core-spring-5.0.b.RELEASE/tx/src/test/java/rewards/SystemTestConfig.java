@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 
 import config.RewardsConfig;
@@ -29,6 +30,12 @@ public class SystemTestConfig {
 	}	
 	
 	
-	//	TODO-02: Define a bean named 'transactionManager' that configures a DataSourceTransactionManager 
+	//	TODO-02: Define a bean named 'transactionManager' that configures a DataSourceTransactionManager
+	@Bean
+	public DataSourceTransactionManager transactionManager() { 
+	  DataSourceTransactionManager man = new DataSourceTransactionManager(dataSource());
+	  System.out.println("Created tx manager="+man);
+	  return man;
+	}
 	
 }

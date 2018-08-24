@@ -58,9 +58,11 @@ public class RewardNetworkPropagationTests {
 		// Open a transaction for testing
 		TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		Dining dining = Dining.createDining("100.00", "1234123412341234", "1234567890");
+		System.out.println("calling rewardAccountFor");
 		rewardNetwork.rewardAccountFor(dining);
 
 		// Rollback the transaction test transaction
+		System.out.println("Rolling back transaction");
 		transactionManager.rollback(status);
 
 		String sql = "select SAVINGS from T_ACCOUNT_BENEFICIARY where NAME = ?";
