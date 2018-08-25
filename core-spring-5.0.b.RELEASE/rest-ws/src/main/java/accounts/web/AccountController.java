@@ -1,5 +1,6 @@
 package accounts.web;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,8 +12,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import accounts.AccountManager;
 import common.money.Percentage;
@@ -23,7 +31,8 @@ import rewards.internal.account.Beneficiary;
  * A controller handling requests for CRUD operations on Accounts and their
  * Beneficiaries.
  */
-@Controller
+//@Controller
+@RestController  //using this annotation removes use of @ResponseBody, because spring will no longer expect a view name and will always expect a response body. 
 public class AccountController {
 
 	private final Logger logger = Logger.getLogger(getClass());
@@ -46,7 +55,8 @@ public class AccountController {
     //   b. Return a List<Account> to be converted to the response body
 	// Save your work and restart the application.
 	// You should get JSON results in your browser when accessing http://localhost:8080/accounts
-	public List<Account> accountSummary() {
+	@GetMapping(value = "/accounts")
+  public /* @ResponseBody */ List<Account> accountSummary() {
 		return accountManager.getAllAccounts();
 	}
 
@@ -58,7 +68,8 @@ public class AccountController {
     //   b. Return  an Account to be converted to the response body
 	// Save your work and restart the application.
 	// You should get JSON results in your browser when accessing http://localhost:8080/accounts/0
-	public Account accountDetails(int id) {
+	@GetMapping(value="/accounts/{accountId}")
+	public /* @ResponseBody */ Account accountDetails(@PathVariable(name="accountId") int id) {
 		return retrieveAccount(id);
 	}
 
@@ -70,8 +81,11 @@ public class AccountController {
 	//  a. Respond to POST /accounts requests
     //  b. Automatically get an unmarshaled Account from the request
     //  c. Indicate a "201 Created" status
-	public ResponseEntity<Void> createAccount(Account newAccount) {
-		// Saving the account also sets its entity Id
+	@PostMapping(value="/accounts")
+	@ResponseStatus(HttpStatus.CREATED) // 201
+	public ResponseEntity<Void> createAccount(@RequestBody Account newAccount) {
+	  System.out.println("POST to createAccount, with account="+newAccount);
+	  // Saving the account also sets its entity Id
 		Account account = accountManager.save(newAccount);
 
 		// Return a ResponseEntity - it will be used to build the
@@ -93,15 +107,17 @@ public class AccountController {
 	 * @return
 	 */
 	private ResponseEntity<Void> entityWithLocation(Object resourceId) {
-
+	  //http://localhost:8080/accounts/1111
+	  URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{accountId}").buildAndExpand(resourceId).toUri(); 
+	  System.out.println("location="+location);
+	  
 		// TODO 07: Set the Location header on a Response to the location of
 		//          the resource and return it.
 		//  a. Read the Javadoc for this method above to see what the URL should be
 		//  b. You will need to use ServletUriComponentsBuilder and
 		//     ResponseEntity to implement this.
 		//  c. Refer to the POST example in the slides for more information
-
-		return null; // Return something other than null
+	  return ResponseEntity.created(location).build();
 	}
 
 	/**
@@ -122,7 +138,10 @@ public class AccountController {
 	//   a. Respond to a POST /accounts/{accountId}/beneficiaries
 	//   b. Extract a beneficiary name from the incoming request
 	//   c. Indicate a "201 Created" status
-	public ResponseEntity<Void> addBeneficiary(long accountId, String beneficiaryName) {
+	@PostMapping(value="/accounts/{accountId}/beneficiaries")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<Void> addBeneficiary(@PathVariable long accountId, @RequestBody String beneficiaryName) {
+	  System.out.println("AddBen, accountId="+accountId+"; benName="+beneficiaryName);
 		accountManager.addBeneficiary(accountId, beneficiaryName);
 
 		// TODO 12: Create a ResponseEntity containing the location of the newly
@@ -130,8 +149,12 @@ public class AccountController {
 		//  a. Look at the mapping for getBeneficiary() above to see what the URL
 		//     should be.  What are we using to identify the Beneficiary?
 		//  b. Use the entityWithLocation method - like we did for createAccount().
-		
-		return null;  // TODO 12: Modify this to return something 
+//		URI location = ServletUriComponentsBuilder.fromCurrentRequestUri()
+//		    .path("/{accountId}/beneficiaries/{beneficiaryName}").
+//		    buildAndExpand(accountId, beneficiaryName).toUri(); 
+//    System.out.println("location="+location);
+//    return ResponseEntity.created(location).build();
+		return entityWithLocation(beneficiaryName);
 	}
 
 	/**
